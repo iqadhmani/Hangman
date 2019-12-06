@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Hangman</string>
+    <string name="title_activity_game">Guess That Pokemon</string>
+
+<!--    Scoreboard Titles-->
+    <string name="name_title">Name</string>
+    <string name="score_title">Score</string>
 </resources>

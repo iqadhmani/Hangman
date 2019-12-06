@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class HangmanDB {
     // database constants
@@ -78,6 +79,25 @@ public class HangmanDB {
         }
         if (cursor != null)
             cursor.close();
+        closeDB();
+        return data;
+    }
+
+    ArrayList<HashMap<String, String>> getLeaderboardStandings(){
+        ArrayList<HashMap<String,String>> data =
+                new ArrayList<HashMap<String, String>>();
+        openReadableDB();
+        Cursor cursor = db.rawQuery("SELECT id, name, score FROM Leaderboard ORDER BY score DESC", null);
+        while (cursor.moveToNext()){
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("id", cursor.getString(0));
+            map.put("name", cursor.getString(1));
+            map.put("score", cursor.getString(2));
+            data.add(map);
+        }
+        if (cursor != null){
+            cursor.close();
+        }
         closeDB();
         return data;
     }
