@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Leaderboard extends AppCompatActivity{
+public class LeaderboardActivity extends AppCompatActivity{
     private ListView itemsListView;
     private HangmanDB db;
 
@@ -30,8 +30,8 @@ public class Leaderboard extends AppCompatActivity{
 
         //Create the resource, from, and to variables
         int resource = R.layout.leaderboard_listview_item;
-        String[] from = {"name", "score"};
-        int[] to = {R.id.nameTextView, R.id.scoreTextView};
+        String[] from = {"name", "score", "guessed"};
+        int[] to = {R.id.nameTextView, R.id.scoreTextView, R.id.guessedTextView};
 
         //create and set the adapter
         SimpleAdapter adapter =

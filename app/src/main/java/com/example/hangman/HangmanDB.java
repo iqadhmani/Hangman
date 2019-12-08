@@ -87,12 +87,12 @@ public class HangmanDB {
         ArrayList<HashMap<String,String>> data =
                 new ArrayList<HashMap<String, String>>();
         openReadableDB();
-        Cursor cursor = db.rawQuery("SELECT id, name, score FROM Leaderboard ORDER BY score DESC", null);
+        Cursor cursor = db.rawQuery("SELECT id, name, score, guessed FROM Leaderboard ORDER BY score DESC, guessed DESC, id", null);
         while (cursor.moveToNext()){
             HashMap<String, String> map = new HashMap<String, String>();
-            map.put("id", cursor.getString(0));
             map.put("name", cursor.getString(1));
             map.put("score", cursor.getString(2));
+            map.put("guessed", cursor.getString(3));
             data.add(map);
         }
         if (cursor != null){
@@ -100,5 +100,16 @@ public class HangmanDB {
         }
         closeDB();
         return data;
+    }
+
+    void insertScore(String playerName, int score, int guessed)throws Exception {
+        openWriteableDB();
+        ContentValues content = new ContentValues();
+        content.put("name", playerName);
+        content.put("score", score);
+        content.put("guessed", guessed);
+        long nResult = db.insert(Leaderboard_TABLE_NAME,null, content);
+        if(nResult == -1) throw new Exception("no data");
+        closeDB();
     }
 }

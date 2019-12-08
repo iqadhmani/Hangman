@@ -95,6 +95,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void updateRound() {
         curChances = 5;
         triedLetters = "";
+        pokDisplayString = "";
         curPokId = pokemonArrayList.get(turn).get("id");
         curPokName = pokemonArrayList.get(turn).get("name");
         curPokNameModified = curPokName.toLowerCase();
@@ -125,10 +126,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void revealOccurrences(char letter) {
-        int letterIndex = curPokName.indexOf(letter);
-        while (letterIndex >= 0) {
-            pokDisplayCharA[letterIndex] = curPokName.charAt(letterIndex);
-            letterIndex = curPokName.indexOf(letter, letterIndex + 1);
+        String letterString = String.valueOf(letter);
+        String letterStringLower = letterString.toLowerCase();
+        String letterStringUpper = letterString.toUpperCase();
+        char letterLower = letterStringLower.toCharArray()[0];
+        char letterUpper = letterStringUpper.toCharArray()[0];
+        int letterIndexLower = curPokName.indexOf(letterLower);
+        int letterIndexUpper = curPokName.indexOf(letterUpper);
+
+        //Letter Lower loop
+        while (letterIndexLower >= 0) {
+            pokDisplayCharA[letterIndexLower] = curPokName.charAt(letterIndexLower);
+            letterIndexLower = curPokName.indexOf(letterLower, letterIndexLower + 1);
+        }
+        //Letter Upper loop
+        while (letterIndexUpper >= 0) {
+            pokDisplayCharA[letterIndexUpper] = curPokName.charAt(letterIndexUpper);
+            letterIndexUpper = curPokName.indexOf(letterUpper, letterIndexUpper + 1);
         }
         pokDisplayString = String.valueOf(pokDisplayCharA);
     }
@@ -190,7 +204,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                //call updateRound() after 1 second
+                                //call updateRound() after 2 seconds
                                 updateRound();
                             }
                         }, 2000);
@@ -200,7 +214,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                //call endGame() after 1 second
+                                //call endGame() after 2 seconds
                                 endGame();
                             }
                         }, 2000);
@@ -222,41 +236,26 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            //call endGame() after 1 second
+                            //call endGame() after 2 seconds
                             endGame();
                         }
                     }, 2000);
                 }
             }
         }
-        //IF entreredLetter == any visible pokemon letters OR guesses/excluded letters
-            //TOAST
-        //ELSE
-            //IF letter is part of pokemon's name
-                //update textView
-                //IF textView.Text.toLowerCase() == curPokName.toLowerCase()
-                    //turn++, score = score + curChances, curChances = 5
-                    //change image from shadow to regular (play pokemon pokemon's cry?)
-                    //IF turn < pokArrayList.Size
-                        //wait for few seconds
-                        //call updateRound()
-                    //ELSE
-                        //call endGame()
-                //ELSE
-                    //chances--
-            //IF CHANCES > 0
-                //update chances X's (remove one)
-            //ELSE
-                //change image from shadow to regular (play pokemon pokemon's cry?)
-                //call endGame()
         return false;
     }
 
     private void endGame() {
-        //INSERT INTO Leaderboard (name, score, guessed) VALUES (playerName, score, guessed);
+        //INSERT INTO Leaderboard (name, score, guessed) VALUES (playerName, score, turn);
+        try {
+            db.insertScore(playerName, score, turn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         playerName = "";
         gamePaused = false;
-        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
         //sharedEditor = sharedPlace.edit();
         //sharedEditor.putString("playerName", playerName);
         //sharedEditor.putString("pokemonObjString", null);

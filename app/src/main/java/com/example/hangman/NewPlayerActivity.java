@@ -1,27 +1,16 @@
 package com.example.hangman;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 public class NewPlayerActivity extends AppCompatActivity implements View.OnClickListener {
     public static String playerName = "";
@@ -32,7 +21,7 @@ public class NewPlayerActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_layout);
+        setContentView(R.layout.newplayer_activity);
         // initialize SharedPreferences
         sharedPlace = getSharedPreferences("SharedPlace", MODE_PRIVATE);
         mp = MediaPlayer.create(getApplicationContext(), R.raw.oak_theme);
@@ -47,13 +36,13 @@ public class NewPlayerActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         if (view.getId() == btnContinue.getId()) {
             String newPlayer = playerNameEditText.getText().toString().trim();
-            if (!newPlayer.matches("") && newPlayer.length() >= 2) {
+            if (!newPlayer.matches("") && newPlayer.length() >= 2 && newPlayer.length() <= 10) {
                 GameActivity.playerName = newPlayer;
                 GameActivity.gamePaused = false;
                 startActivity(new Intent(getApplicationContext(), GameActivity.class));
             }
             else {
-                Toast toast = Toast.makeText(this, "Player name needs to be at least 2 characters long.", Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Player name needs to be between 2 to 10 characters long.", Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             }

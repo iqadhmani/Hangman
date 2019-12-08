@@ -13,14 +13,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    Button btnStartGame;
+    Button btnStartGame, btnLeaderboard;
     MediaPlayer mp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btnStartGame = findViewById(R.id.btnStartGame);
+        btnLeaderboard = findViewById(R.id.btnLeaderboard);
         btnStartGame.setOnClickListener(this);
+        btnLeaderboard.setOnClickListener(this);
         mp = MediaPlayer.create(getApplicationContext(), R.raw.hangmantitletheme);
     }
 
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         if (view.getId() == btnStartGame.getId()) {
             startActivity(new Intent(getApplicationContext(), GameActivity.class));
+        }
+        else if (view.getId() == btnLeaderboard.getId()) {
+            startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
         }
     }
 

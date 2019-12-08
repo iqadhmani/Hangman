@@ -1,12 +1,28 @@
 <resources>
-    <string name="app_name">Hangman</string>
+    <string name="app_name">Who\'s that Pokémon</string>
+
+<!-- Main Activity -->
+    <string name="btnStartGame">START GAME</string>
+    <string name="btnLeaderboard">LEADERBOARD</string>
+
+<!-- New Player Activity -->
+    <string name="newPlayerTextView">Please enter your name:</string>
+    <string name="newPlayerEditTextHint">Player Name</string>
+    <string name="btnContinue">CONTINUE</string>
+    <string name="btnCancel">CANCEL</string>
+    <string name="title_activity_newplayer">Who\'s that Pokémon - New Player</string>
+
+
+<!-- Game Activity -->
     <string name="inputTextView">Your Input</string>
     <string name="pokNameTextView">Pok_mon</string>
     <string name="triedTextViewLabel">Tried Letters</string>
     <string name="chancesTextViewLabel">Chances Left</string>
-    <string name="title_activity_game">Guess That Pokemon</string>
+    <string name="title_activity_game">Who\'s that Pokémon - Hangman</string>
 
 <!--    Scoreboard Titles-->
     <string name="name_title">Name</string>
     <string name="score_title">Score</string>
+    <string name="guessed_title">Guessed Pokémon </string>
+    <string name="title_activity_leaderboard">Who\'s that Pokémon - Leaderboard</string>
 </resources>
