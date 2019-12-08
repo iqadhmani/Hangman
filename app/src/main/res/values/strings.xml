@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">Hangman</string>
-    <string name="title_activity_game">Hangman</string>
     <string name="inputTextView">Your Input</string>
     <string name="pokNameTextView">Pok_mon</string>
     <string name="triedTextViewLabel">Tried Letters</string>
     <string name="chancesTextViewLabel">Chances Left</string>
+    <string name="title_activity_game">Guess That Pokemon</string>
+
+<!--    Scoreboard Titles-->
+    <string name="name_title">Name</string>
+    <string name="score_title">Score</string>
 </resources>
