@@ -1,42 +1,65 @@
 package com.example.hangman;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener {
-    TextView textViewTurn;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class GameActivity extends AppCompatActivity implements View.OnClickListener, TextView.OnEditorActionListener {
     int turn = 0, score = 0; //when you iterate turn, check with data.size instead of just 151
     int curChances = 5;
+    int guessed = 0;
     String triedLetters = "";
-    int color;
-    int colorRegular;
-    String sPlayer1 = null, sPlayer2 = null;
-    String nPlayer1 = "", nPlayer2 = "";
+    int imgResId;
 
-    ImageView myImgView;
-    String curPokId, curPokName, curPokNameModified, curPokReg, curPokShad, playerName;
-    private SharedPreferences sharedPlace;
+    TextView pokNameTextView, triedTextViewLetters, chancesTextViewNumber, scoreTextView;
+    EditText inputEditText;
+
+    ArrayList<Pokemon> pokemonArrayList;
+    String pokemonObjString;
+
+    ImageView pokImgView;
+    String curPokId, curPokName, curPokNameModified, curPokReg, curPokShad;
+    public static String playerName = "";
+    char[] pokDisplayCharA;
+    String pokDisplayString;
+    protected SharedPreferences sharedPlace;
+    protected static SharedPreferences.Editor sharedEditor;
     private HangmanDB db;
+    MediaPlayer mp;
+    protected static boolean gamePaused;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         db = new HangmanDB(this.getApplicationContext());
-        myImgView = findViewById(R.id.imageViewPokemon);
-        //colorRegular = getResources().getColor(R.color.colorRegular);
+        pokImgView = findViewById(R.id.imageViewPokemon);
         // initialize SharedPreferences
         sharedPlace = getSharedPreferences("SharedPlace", MODE_PRIVATE);
+
+        pokNameTextView = findViewById(R.id.pokNameTextView);
+        triedTextViewLetters = findViewById(R.id.triedTextViewLetters);
+        chancesTextViewNumber = findViewById(R.id.chancesTextViewNumber);
+        inputEditText = findViewById(R.id.inputEditText);
+        inputEditText.setOnEditorActionListener(this);
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.whosthatpokemon);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -53,25 +76,201 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void createNewGame() {
+        if (!playerName.equals("")) {
+            pokemonArrayList = db.getPokemon();
+            gamePaused = true;
+            try {
+                pokemonObjString = ObjectSerializer.serialize(pokemonArrayList);
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            updateRound();
+        }
+        else {
+            startActivity(new Intent(getApplicationContext(), NewPlayerActivity.class));
+        }
     }
+    //Generate round after createGame or winning last round
+    public void updateRound() {
+        curChances = 5;
+        triedLetters = "";
+        curPokId = pokemonArrayList.get(turn).get("id");
+        curPokName = pokemonArrayList.get(turn).get("name");
+        curPokNameModified = curPokName.toLowerCase();
+        if (curPokName.contains(".")) {
+            curPokNameModified = curPokNameModified.replace(".", "");
+        }
+        if (curPokName.contains(" ")) {
+            curPokNameModified = curPokNameModified.replace(" ", "_");
+        }
+        curPokReg = "p" + curPokId + curPokNameModified;
+        curPokShad = curPokReg + "_";
+        imgResId = getResources().getIdentifier(curPokShad, "drawable", "com.example.hangman");
+        pokImgView.setImageResource(imgResId);
+        //play who's that pokemon mp3
+        mp.start();
+
+        pokDisplayCharA = curPokName.toCharArray();
+        for (int i = 1; i < pokDisplayCharA.length - 1; i++) {
+            if (pokDisplayCharA[i] != ' ' && pokDisplayCharA[i] != '.') {
+                pokDisplayCharA[i] = '_';
+            }
+        }
+        revealOccurrences(pokDisplayCharA[0]);
+        revealOccurrences(pokDisplayCharA[pokDisplayCharA.length - 1]);
+        updatePokTextView();
+        updateTriedTextView();
+        updateChancesTextView();
+    }
+
+    public void revealOccurrences(char letter) {
+        int letterIndex = curPokName.indexOf(letter);
+        while (letterIndex >= 0) {
+            pokDisplayCharA[letterIndex] = curPokName.charAt(letterIndex);
+            letterIndex = curPokName.indexOf(letter, letterIndex + 1);
+        }
+        pokDisplayString = String.valueOf(pokDisplayCharA);
+    }
+
+    public void updatePokTextView() {
+        String displayString = "";
+        for (char character : pokDisplayCharA) {
+            displayString += character + " ";
+        }
+        pokNameTextView.setText(displayString);
+    }
+
+    public void updateTriedTextView() {
+        String displayString = "";
+        char[] displayCharA = triedLetters.toCharArray();
+        for (int i = 0; i < displayCharA.length; i++) {
+            if (i == 0) {
+                displayString = String.valueOf(displayCharA[0]);
+            }
+            else {
+                displayString += ", " + displayCharA[i];
+            }
+        }
+        triedTextViewLetters.setText(displayString);
+    }
+
+    public void updateChancesTextView() {
+        chancesTextViewNumber.setText(curChances + "/5");
+    }
+
     @Override
     public void onClick(View view) {
 
     }
 
-    private void checkGame(){
-
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (v.getId() == inputEditText.getId()) {
+            String enteredLetter = inputEditText.getText().toString().toLowerCase();
+            inputEditText.setText("");
+            if (!enteredLetter.matches("[a-zA-Z]")) {
+                Toast.makeText(this, "Please enter alphabetical letters only.", Toast.LENGTH_LONG).show();
+            }
+            else if (pokDisplayString.toLowerCase().contains(enteredLetter) || triedLetters.toLowerCase().contains(enteredLetter)) {
+                Toast.makeText(this, "Please enter letters not already displayed or part of the tried letters.", Toast.LENGTH_LONG).show();
+            }
+            else if (curPokName.toLowerCase().contains(enteredLetter)) {
+                revealOccurrences(enteredLetter.toCharArray()[0]);
+                updatePokTextView();
+                updateTriedTextView();
+                updateChancesTextView();
+                if (pokDisplayString.toLowerCase().equals(curPokName.toLowerCase())) {
+                    turn++;
+                    score += curChances;
+                    imgResId = getResources().getIdentifier(curPokReg, "drawable", "com.example.hangman");
+                    pokImgView.setImageResource(imgResId);
+                    if (turn < pokemonArrayList.size()) {
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //call updateRound() after 1 second
+                                updateRound();
+                            }
+                        }, 2000);
+                    }
+                    else {
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //call endGame() after 1 second
+                                endGame();
+                            }
+                        }, 2000);
+                    }
+                }
+            }
+            else {
+                curChances--;
+                triedLetters += enteredLetter;
+                Toast.makeText(this, "This Pokemon's name does not contain the letter " + enteredLetter + ".", Toast.LENGTH_LONG).show();
+                if (curChances > 0) {
+                    updateTriedTextView();
+                    updateChancesTextView();
+                }
+                else {
+                    imgResId = getResources().getIdentifier(curPokReg, "drawable", "com.example.hangman");
+                    pokImgView.setImageResource(imgResId);
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //call endGame() after 1 second
+                            endGame();
+                        }
+                    }, 2000);
+                }
+            }
+        }
+        //IF entreredLetter == any visible pokemon letters OR guesses/excluded letters
+            //TOAST
+        //ELSE
+            //IF letter is part of pokemon's name
+                //update textView
+                //IF textView.Text.toLowerCase() == curPokName.toLowerCase()
+                    //turn++, score = score + curChances, curChances = 5
+                    //change image from shadow to regular (play pokemon pokemon's cry?)
+                    //IF turn < pokArrayList.Size
+                        //wait for few seconds
+                        //call updateRound()
+                    //ELSE
+                        //call endGame()
+                //ELSE
+                    //chances--
+            //IF CHANCES > 0
+                //update chances X's (remove one)
+            //ELSE
+                //change image from shadow to regular (play pokemon pokemon's cry?)
+                //call endGame()
+        return false;
     }
 
-    private void endGame(Button btn1, Button btn2, Button btn3) {
-
+    private void endGame() {
+        //INSERT INTO Leaderboard (name, score, guessed) VALUES (playerName, score, guessed);
+        playerName = "";
+        gamePaused = false;
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        //sharedEditor = sharedPlace.edit();
+        //sharedEditor.putString("playerName", playerName);
+        //sharedEditor.putString("pokemonObjString", null);
+        //show leaderboard
     }
 
     @Override
     protected void onPause() {
-        SharedPreferences.Editor sharedEditor = sharedPlace.edit();
-        sharedEditor.putString("textViewTurn", textViewTurn.getText().toString());
+        sharedEditor = sharedPlace.edit();
+
+        sharedEditor.putString("pokNameTextView", pokNameTextView.getText().toString()); //for pokemon incomplete name textView
+        sharedEditor.putString("triedTextViewLetters", triedTextViewLetters.getText().toString()); //for excluded letters textView
+        sharedEditor.putString("chancesTextViewNumber", chancesTextViewNumber.getText().toString()); //for chances left textView
+
         sharedEditor.putString("curPokId", curPokId);
         sharedEditor.putString("curPokName", curPokName);
         sharedEditor.putString("curPokNameModified", curPokNameModified);
@@ -79,9 +278,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         sharedEditor.putString("curPokShad", curPokShad);
         sharedEditor.putString("playerName", playerName); //This will detect if there was a game paused or not. Player will enter their name before game start
         sharedEditor.putString("triedLetters", triedLetters);
+        sharedEditor.putString("pokDisplayString", pokDisplayString);
         sharedEditor.putInt("turn", turn);
+        sharedEditor.putInt("guessed", guessed);
         sharedEditor.putInt("score", score);
         sharedEditor.putInt("curChances", curChances);
+        sharedEditor.putInt("imgResId", imgResId);
+        sharedEditor.putString("pokemonObjString", pokemonObjString);
+        sharedEditor.putBoolean("gamePaused", gamePaused);
         sharedEditor.commit();
         super.onPause();
     }
@@ -90,26 +294,43 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume(){
         super.onResume();
         db = new HangmanDB(this.getApplicationContext());
-        boolean gameDone = true;
         try {
-            curPokId = sharedPlace.getString("curPokId", "");
-            curPokName = sharedPlace.getString("curPokName", "");
-            curPokNameModified = sharedPlace.getString("curPokNameModified", "");
-            curPokReg = sharedPlace.getString("curPokReg", "");
-            curPokShad = sharedPlace.getString("curPokShad", "");
-            playerName = sharedPlace.getString("playerName", "");
-            triedLetters = sharedPlace.getString("triedLetters", "");
-            turn = sharedPlace.getInt("curPokName", 0);
-            score = sharedPlace.getInt("score", 0);
-            curChances = sharedPlace.getInt("curChances", 5);
+            gamePaused = sharedPlace.getBoolean("gamePaused", false);
+            if (gamePaused) {
+                playerName = sharedPlace.getString("playerName", "");
+                curPokId = sharedPlace.getString("curPokId", "");
+                curPokName = sharedPlace.getString("curPokName", "");
+                curPokNameModified = sharedPlace.getString("curPokNameModified", "");
+                curPokReg = sharedPlace.getString("curPokReg", "");
+                curPokShad = sharedPlace.getString("curPokShad", "");
 
-            textViewTurn.setText(sharedPlace.getString("textViewTurn", ""));
-            //else createNewGame();
+                triedLetters = sharedPlace.getString("triedLetters", "");
+                turn = sharedPlace.getInt("turn", 0);
+                guessed = sharedPlace.getInt("guessed", 0);
+                score = sharedPlace.getInt("score", 0);
+                curChances = sharedPlace.getInt("curChances", 5);
+                imgResId = sharedPlace.getInt("imgResId", 0);
+                pokImgView.setImageResource(imgResId);
 
+                pokNameTextView.setText(sharedPlace.getString("pokNameTextView", ""));
+                triedTextViewLetters.setText(sharedPlace.getString("triedTextViewLetters", ""));
+                chancesTextViewNumber.setText(sharedPlace.getString("chancesTextViewNumber", ""));
+
+                pokDisplayString = sharedPlace.getString("pokDisplayString", "");
+                pokDisplayCharA = pokDisplayString.toCharArray();
+
+                pokemonObjString = sharedPlace.getString("pokemonObjString", "");
+                pokemonArrayList = (ArrayList<Pokemon>) ObjectSerializer.deserialize(pokemonObjString);
+            }
+            else {
+                createNewGame();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             createNewGame();
         }
 
     }
+
+
 }
