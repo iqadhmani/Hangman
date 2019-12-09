@@ -85,18 +85,18 @@ public class NewPlayerActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_leaderboard, menu);
+        getMenuInflater().inflate(R.menu.activity_game, menu);
         return true;
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.leaderboard_menu_main:
+            case R.id.game_menu_main:
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 return true;
-            case R.id.leaderboard_menu_newGame:
-                startActivity(new Intent(getApplicationContext(), GameActivity.class));
+            case R.id.game_menu_leaderboard:
+                startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
