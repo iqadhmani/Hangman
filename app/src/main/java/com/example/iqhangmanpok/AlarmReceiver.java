@@ -1,4 +1,4 @@
-package com.example.hangman;
+package com.example.iqhangmanpok;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -13,7 +13,7 @@ import android.os.Build;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 
 public class AlarmReceiver extends BroadcastReceiver {
-    private static final String CHANNEL_ID = "com.example.hangman.channelId";
+    private static final String CHANNEL_ID = "com.example.iqhangmanpok.channelId";
 
     @Override
     public void onReceive(Context context, Intent intent) {

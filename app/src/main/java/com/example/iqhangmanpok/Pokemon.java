@@ -1,4 +1,4 @@
-package com.example.hangman;
+package com.example.iqhangmanpok;
 
 import java.util.HashMap;
 

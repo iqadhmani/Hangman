@@ -1,7 +1,5 @@
-package com.example.hangman;
+package com.example.iqhangmanpok;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;

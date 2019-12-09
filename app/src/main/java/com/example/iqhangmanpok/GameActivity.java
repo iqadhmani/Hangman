@@ -1,7 +1,6 @@
-package com.example.hangman;
+package com.example.iqhangmanpok;
 
 import android.app.AlarmManager;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +9,9 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -120,7 +117,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         curPokReg = "p" + curPokId + curPokNameModified;
         curPokShad = curPokReg + "_";
-        imgResId = getResources().getIdentifier(curPokShad, "drawable", "com.example.hangman");
+        imgResId = getResources().getIdentifier(curPokShad, "drawable", "com.example.iqhangmanpok");
         pokImgView.setImageResource(imgResId);
         //play who's that pokemon mp3
         mp.start();
@@ -210,7 +207,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 if (pokDisplayString.toLowerCase().equals(curPokName.toLowerCase())) {
                     turn++;
                     score += curChances;
-                    imgResId = getResources().getIdentifier(curPokReg, "drawable", "com.example.hangman");
+                    imgResId = getResources().getIdentifier(curPokReg, "drawable", "com.example.iqhangmanpok");
                     pokImgView.setImageResource(imgResId);
                     if (turn < pokemonArrayList.size()) {
                         final Handler handler = new Handler();
@@ -245,7 +242,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 else {
                     updateTriedTextView();
                     updateChancesTextView();
-                    imgResId = getResources().getIdentifier(curPokReg, "drawable", "com.example.hangman");
+                    imgResId = getResources().getIdentifier(curPokReg, "drawable", "com.example.iqhangmanpok");
                     pokImgView.setImageResource(imgResId);
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
