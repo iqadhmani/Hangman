@@ -1,6 +1,9 @@
 package com.example.hangman;
 
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
@@ -21,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, TextView.OnEditorActionListener {
     int turn = 0, score = 0; //when you iterate turn, check with data.size instead of just 151
@@ -44,6 +48,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected static SharedPreferences.Editor sharedEditor;
     private HangmanDB db;
     MediaPlayer mp;
+
+    public static String alertName;
+    public static int alertScore;
     protected static boolean gamePaused;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +70,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.activity_game, menu);
+        getMenuInflater().inflate(R.menu.activity_game, menu);
         return true;
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.game_menu_main:
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                return true;
+            case R.id.game_menu_leaderboard:
+                startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -230,6 +243,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     updateChancesTextView();
                 }
                 else {
+                    updateTriedTextView();
+                    updateChancesTextView();
                     imgResId = getResources().getIdentifier(curPokReg, "drawable", "com.example.hangman");
                     pokImgView.setImageResource(imgResId);
                     final Handler handler = new Handler();
@@ -253,13 +268,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             e.printStackTrace();
         }
+        alertName = playerName;
+        alertScore = score;
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+        PendingIntent broadcast = PendingIntent.getBroadcast(this, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.SECOND, 5);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), broadcast);
         playerName = "";
         gamePaused = false;
         startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
-        //sharedEditor = sharedPlace.edit();
-        //sharedEditor.putString("playerName", playerName);
-        //sharedEditor.putString("pokemonObjString", null);
-        //show leaderboard
     }
 
     @Override
@@ -331,5 +352,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void onBackPressed(){
+        Intent a = new Intent(Intent.ACTION_MAIN);
+        a.addCategory(Intent.CATEGORY_HOME);
+        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(a);
+
+    }
 
 }

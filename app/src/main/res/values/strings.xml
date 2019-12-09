@@ -25,4 +25,9 @@
     <string name="score_title">Score</string>
     <string name="guessed_title">Guessed Pokémon </string>
     <string name="title_activity_leaderboard">Who\'s that Pokémon - Leaderboard</string>
+
+<!-- Menu -->
+    <string name="menu_new_game">New Game</string>
+    <string name="menu_main_menu">Main Menu</string>
+    <string name="menu_leaderboard">Leaderboard</string>
 </resources>

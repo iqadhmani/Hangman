@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/game_menu_main"
+        android:title="@string/menu_main_menu"
+        app:showAsAction="never" />
+    <item android:id="@+id/game_menu_leaderboard"
+        android:title="@string/menu_leaderboard"
+        app:showAsAction="never" />
+</menu>

@@ -28,6 +28,7 @@
             android:name=".LeaderboardActivity"
             android:label="@string/title_activity_leaderboard">
         </activity>
+        <receiver android:name=".AlarmReceiver"/>
     </application>
 
 </manifest>
